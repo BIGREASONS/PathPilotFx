@@ -1,0 +1,25 @@
+# Compiled class files
+*.class
+
+# JAR files
+*.jar
+
+# User data (generated at runtime)
+pathpilot_data.properties
+
+# Old/alternate source files
+New folder/
+
+# IDE files
+.idea/
+*.iml
+.vscode/
+.settings/
+.project
+.classpath
+*.swp
+*~
+
+# OS files
+Thumbs.db
+.DS_Store
