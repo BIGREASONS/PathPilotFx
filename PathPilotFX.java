@@ -53,12 +53,16 @@ public class PathPilotFX extends Application {
     private void initializeData() {
         if (challenges.isEmpty()) {
             challenges.addAll(
-                new Challenge("Two Sum", "Find two numbers that add up to a target.", "Easy", 10, "https://leetcode.com/problems/two-sum/"),
-                new Challenge("Reverse String", "Reverse a given string in-place.", "Easy", 15, "https://leetcode.com/problems/reverse-string/"),
-                new Challenge("Valid Parentheses", "Check if a string of parentheses is valid.", "Medium", 20, "https://leetcode.com/problems/valid-parentheses/"),
-                new Challenge("Binary Search", "Implement binary search algorithm.", "Medium", 25, "https://leetcode.com/problems/binary-search/"),
-                new Challenge("Median of Two Sorted Arrays", "Find the median of two sorted arrays.", "Hard", 50, "https://leetcode.com/problems/median-of-two-sorted-arrays/")
-            );
+                    new Challenge("Two Sum", "Find two numbers that add up to a target.", "Easy", 10,
+                            "https://leetcode.com/problems/two-sum/"),
+                    new Challenge("Reverse String", "Reverse a given string in-place.", "Easy", 15,
+                            "https://leetcode.com/problems/reverse-string/"),
+                    new Challenge("Valid Parentheses", "Check if a string of parentheses is valid.", "Medium", 20,
+                            "https://leetcode.com/problems/valid-parentheses/"),
+                    new Challenge("Binary Search", "Implement binary search algorithm.", "Medium", 25,
+                            "https://leetcode.com/problems/binary-search/"),
+                    new Challenge("Median of Two Sorted Arrays", "Find the median of two sorted arrays.", "Hard", 50,
+                            "https://leetcode.com/problems/median-of-two-sorted-arrays/"));
         }
     }
 
@@ -75,7 +79,7 @@ public class PathPilotFX extends Application {
 
         content = new VBox(20);
         content.setPadding(new Insets(30));
-        
+
         // Make the main content scrollable
         ScrollPane mainScroll = new ScrollPane(content);
         mainScroll.setFitToWidth(true);
@@ -104,8 +108,9 @@ public class PathPilotFX extends Application {
 
         public String askAI(String prompt) {
             try {
-                String payload = "{\"model\": \"" + model + "\", \"messages\": [{\"role\": \"user\", \"content\": \"" + prompt + "\"}], \"stream\": false}";
-                HttpURLConnection conn = (HttpURLConnection) new URL(apiUrl).openConnection();
+                String payload = "{\"model\": \"" + model + "\", \"messages\": [{\"role\": \"user\", \"content\": \""
+                        + prompt + "\"}], \"stream\": false}";
+                HttpURLConnection conn = (HttpURLConnection) new java.net.URI(apiUrl).toURL().openConnection();
                 conn.setRequestMethod("POST");
                 conn.setRequestProperty("Content-Type", "application/json");
                 conn.setDoOutput(true);
@@ -115,7 +120,7 @@ public class PathPilotFX extends Application {
                 try (OutputStream os = conn.getOutputStream()) {
                     os.write(payload.getBytes());
                 }
-                
+
                 int responseCode = conn.getResponseCode();
                 if (responseCode != 200) {
                     return "Error: HTTP " + responseCode + " - " + conn.getResponseMessage();
@@ -125,7 +130,7 @@ public class PathPilotFX extends Application {
                     return new String(is.readAllBytes());
                 }
             } catch (java.net.SocketTimeoutException e) {
-                return "Error: Request timed out after " + (timeout/1000) + " seconds";
+                return "Error: Request timed out after " + (timeout / 1000) + " seconds";
             } catch (Exception e) {
                 e.printStackTrace();
                 return "Error communicating with Ollama: " + e.getMessage();
@@ -135,12 +140,12 @@ public class PathPilotFX extends Application {
 
     private void generateRoadmap() {
         milestones.clear();
-        
+
         // Show loading indicator
         showNotification("Generating detailed roadmap with AI... Please wait", false);
 
         String prompt = "Create a VERY DETAILED 12-week learning roadmap for a user aiming to become a "
-                + careerGoal.get() + ". The user is at " + skillLevel.get() 
+                + careerGoal.get() + ". The user is at " + skillLevel.get()
                 + " level and can commit " + timeCommitment.get() + ". "
                 + "Provide comprehensive weekly milestones with: "
                 + "1. Week number and title"
@@ -157,31 +162,29 @@ public class PathPilotFX extends Application {
         new Thread(() -> {
             try {
                 String response = ollamaService.askAI(prompt);
-                
+
                 // Parse response on JavaFX thread
                 Platform.runLater(() -> {
                     String aiContent = parseAIResponse(response);
-                    
+
                     milestones.add(new Milestone(
-                        "📅 12-Week " + careerGoal.get() + " Learning Roadmap",
-                        aiContent,
-                        100,
-                        false,
-                        Arrays.asList(
-                            "https://leetcode.com/",
-                            "https://www.geeksforgeeks.org/", 
-                            "https://www.coursera.org/",
-                            "https://www.udemy.com/",
-                            "https://github.com/",
-                            "https://stackoverflow.com/",
-                            "https://developer.mozilla.org/",
-                            "https://www.freecodecamp.org/",
-                            "https://www.codecademy.com/",
-                            "https://www.pluralsight.com/",
-                            "https://www.kaggle.com/",
-                            "https://www.datacamp.com/"
-                        )
-                    ));
+                            "📅 12-Week " + careerGoal.get() + " Learning Roadmap",
+                            aiContent,
+                            100,
+                            false,
+                            Arrays.asList(
+                                    "https://leetcode.com/",
+                                    "https://www.geeksforgeeks.org/",
+                                    "https://www.coursera.org/",
+                                    "https://www.udemy.com/",
+                                    "https://github.com/",
+                                    "https://stackoverflow.com/",
+                                    "https://developer.mozilla.org/",
+                                    "https://www.freecodecamp.org/",
+                                    "https://www.codecademy.com/",
+                                    "https://www.pluralsight.com/",
+                                    "https://www.kaggle.com/",
+                                    "https://www.datacamp.com/")));
 
                     showNotification("Detailed roadmap generated successfully!", false);
                     showRoadmapTab();
@@ -204,9 +207,7 @@ public class PathPilotFX extends Application {
             return jsonResponse.trim();
         } catch (Exception e) {
             System.out.println("Error parsing AI response: " + e.getMessage());
-            return jsonResponse.length() > 500 ?
-                   jsonResponse.substring(0, 500) + "..." :
-                   jsonResponse;
+            return jsonResponse.length() > 500 ? jsonResponse.substring(0, 500) + "..." : jsonResponse;
         }
     }
 
@@ -270,8 +271,7 @@ public class PathPilotFX extends Application {
 
         Timeline pulse = new Timeline(
                 new KeyFrame(Duration.ZERO, new KeyValue(glow.levelProperty(), 0.4)),
-                new KeyFrame(Duration.seconds(1.2), new KeyValue(glow.levelProperty(), 0.8))
-        );
+                new KeyFrame(Duration.seconds(1.2), new KeyValue(glow.levelProperty(), 0.8)));
         pulse.setAutoReverse(true);
         pulse.setCycleCount(Animation.INDEFINITE);
         pulse.play();
@@ -333,13 +333,14 @@ public class PathPilotFX extends Application {
         newContent.getChildren().add(heading);
 
         if (milestones.isEmpty()) {
-            Label noContent = new Label("No roadmap generated yet. Go to Setup tab to generate your personalized roadmap!");
+            Label noContent = new Label(
+                    "No roadmap generated yet. Go to Setup tab to generate your personalized roadmap!");
             noContent.setFont(Font.font("Poppins", 16));
             noContent.setTextFill(Color.web("#9aa0ba"));
             newContent.getChildren().add(noContent);
         } else {
             VBox milestonesContainer = new VBox(20);
-            
+
             for (Milestone milestone : milestones) {
                 VBox card = createMilestoneCard(milestone);
                 milestonesContainer.getChildren().add(card);
@@ -350,12 +351,12 @@ public class PathPilotFX extends Application {
             scrollPane.setFitToWidth(true);
             scrollPane.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
             scrollPane.setPadding(new Insets(10));
-            
+
             // Set preferred height to allow scrolling
             scrollPane.setPrefHeight(600);
             scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
             scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-            
+
             newContent.getChildren().add(scrollPane);
         }
 
@@ -367,9 +368,8 @@ public class PathPilotFX extends Application {
         card.setPadding(new Insets(25));
         card.setStyle(
                 "-fx-background-color: #2b2f50;" +
-                "-fx-background-radius: 20;" +
-                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 15, 0, 0, 6);"
-        );
+                        "-fx-background-radius: 20;" +
+                        "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 15, 0, 0, 6);");
 
         Label title = new Label(milestone.getTitle());
         title.setFont(Font.font("Poppins", FontWeight.BOLD, 22));
@@ -380,16 +380,15 @@ public class PathPilotFX extends Application {
         descriptionArea.setEditable(false);
         descriptionArea.setWrapText(true);
         descriptionArea.setStyle(
-            "-fx-background-color: #3a3f63;" +
-            "-fx-text-fill: #9aa0ba;" +
-            "-fx-font-family: 'Poppins';" +
-            "-fx-font-size: 14px;" +
-            "-fx-border-radius: 10;" +
-            "-fx-background-radius: 10;" +
-            "-fx-padding: 15;" +
-            "-fx-border-color: #4a4f74;" +
-            "-fx-border-width: 1;"
-        );
+                "-fx-background-color: #3a3f63;" +
+                        "-fx-text-fill: #9aa0ba;" +
+                        "-fx-font-family: 'Poppins';" +
+                        "-fx-font-size: 14px;" +
+                        "-fx-border-radius: 10;" +
+                        "-fx-background-radius: 10;" +
+                        "-fx-padding: 15;" +
+                        "-fx-border-color: #4a4f74;" +
+                        "-fx-border-width: 1;");
         descriptionArea.setPrefRowCount(15);
         descriptionArea.setPrefHeight(400);
 
@@ -404,7 +403,7 @@ public class PathPilotFX extends Application {
         resourcesLabel.setFont(Font.font("Poppins", FontWeight.BOLD, 16));
         resourcesLabel.setTextFill(Color.web("#d1d3e0"));
         resourcesBox.getChildren().add(resourcesLabel);
-        
+
         for (String url : milestone.getResources()) {
             Hyperlink link = new Hyperlink("🔗 " + url);
             link.setFont(Font.font("Poppins", 14));
@@ -414,7 +413,7 @@ public class PathPilotFX extends Application {
         }
 
         card.getChildren().addAll(title, descriptionArea, points, resourcesBox);
-        
+
         FadeTransition fade = new FadeTransition(Duration.seconds(1), card);
         fade.setFromValue(0);
         fade.setToValue(1);
@@ -464,8 +463,7 @@ public class PathPilotFX extends Application {
                 "Software Developer", "Data Scientist", "ML Engineer",
                 "Cloud Engineer", "DevOps Engineer", "Product Manager",
                 "UI/UX Designer", "Cybersecurity Analyst", "Full Stack Developer",
-                "Frontend Developer", "Backend Developer", "Mobile Developer"
-        );
+                "Frontend Developer", "Backend Developer", "Mobile Developer");
         goalBox.setValue(careerGoal.get());
         careerGoal.bind(goalBox.valueProperty());
 
@@ -476,8 +474,7 @@ public class PathPilotFX extends Application {
 
         ComboBox<String> timeBox = createStyledComboBox();
         timeBox.getItems().addAll(
-                "1-2 hours/day", "2-4 hours/day", "4-6 hours/day", "6-8 hours/day", "8+ hours/day"
-        );
+                "1-2 hours/day", "2-4 hours/day", "4-6 hours/day", "6-8 hours/day", "8+ hours/day");
         timeBox.setValue(timeCommitment.get());
         timeCommitment.bind(timeBox.valueProperty());
 
@@ -485,11 +482,11 @@ public class PathPilotFX extends Application {
         careerSection.getChildren().addAll(
                 createFormLabel("Career Goal:"), goalBox,
                 createFormLabel("Current Skill Level:"), levelBox,
-                createFormLabel("Daily Time Commitment:"), timeBox
-        );
+                createFormLabel("Daily Time Commitment:"), timeBox);
 
         Button generateBtn = new Button("🎯 Generate Detailed Roadmap (12 Weeks)");
-        generateBtn.setStyle("-fx-background-color: #667eea; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14; -fx-padding: 12 20; -fx-background-radius: 10;");
+        generateBtn.setStyle(
+                "-fx-background-color: #667eea; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14; -fx-padding: 12 20; -fx-background-radius: 10;");
         generateBtn.setOnAction(e -> {
             if (validateProfile()) {
                 generateRoadmap();
@@ -497,7 +494,8 @@ public class PathPilotFX extends Application {
         });
 
         Button saveBtn = new Button("💾 Save Profile");
-        saveBtn.setStyle("-fx-background-color: #48bb78; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 12 20; -fx-background-radius: 10;");
+        saveBtn.setStyle(
+                "-fx-background-color: #48bb78; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 12 20; -fx-background-radius: 10;");
         saveBtn.setOnAction(e -> {
             saveUserData();
             showNotification("Profile saved successfully!", false);
@@ -514,14 +512,13 @@ public class PathPilotFX extends Application {
         TextField textField = new TextField();
         textField.setPromptText(promptText);
         textField.setStyle(
-            "-fx-background-color: #f7fafc;" +
-            "-fx-border-color: #cbd5e0;" +
-            "-fx-border-radius: 8;" +
-            "-fx-background-radius: 8;" +
-            "-fx-padding: 10;" +
-            "-fx-font-family: 'Poppins';" +
-            "-fx-font-size: 14px;"
-        );
+                "-fx-background-color: #f7fafc;" +
+                        "-fx-border-color: #cbd5e0;" +
+                        "-fx-border-radius: 8;" +
+                        "-fx-background-radius: 8;" +
+                        "-fx-padding: 10;" +
+                        "-fx-font-family: 'Poppins';" +
+                        "-fx-font-size: 14px;");
         textField.setPrefWidth(300);
         return textField;
     }
@@ -529,14 +526,13 @@ public class PathPilotFX extends Application {
     private ComboBox<String> createStyledComboBox() {
         ComboBox<String> comboBox = new ComboBox<>();
         comboBox.setStyle(
-            "-fx-background-color: #f7fafc;" +
-            "-fx-border-color: #cbd5e0;" +
-            "-fx-border-radius: 8;" +
-            "-fx-background-radius: 8;" +
-            "-fx-padding: 8;" +
-            "-fx-font-family: 'Poppins';" +
-            "-fx-font-size: 14px;"
-        );
+                "-fx-background-color: #f7fafc;" +
+                        "-fx-border-color: #cbd5e0;" +
+                        "-fx-border-radius: 8;" +
+                        "-fx-background-radius: 8;" +
+                        "-fx-padding: 8;" +
+                        "-fx-font-family: 'Poppins';" +
+                        "-fx-font-size: 14px;");
         comboBox.setPrefWidth(300);
         return comboBox;
     }
@@ -551,50 +547,52 @@ public class PathPilotFX extends Application {
     private void showChallengesTab() {
         content.getChildren().clear();
         content.setStyle("-fx-background-color: transparent;");
-        
+
         Label heading = new Label("⚡ Interactive Challenges");
         heading.setFont(Font.font("Poppins", FontWeight.BOLD, 26));
         heading.setTextFill(Color.web("#d1d3e0"));
         content.getChildren().add(heading);
 
         VBox challengesContainer = new VBox(15);
-        
+
         for (Challenge challenge : challenges) {
             VBox box = new VBox(10);
             box.setPadding(new Insets(15));
-            box.setStyle("-fx-background-color: #2b2f50; -fx-background-radius: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0, 0, 5);");
-            
+            box.setStyle(
+                    "-fx-background-color: #2b2f50; -fx-background-radius: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0, 0, 5);");
+
             Label title = new Label(challenge.getTitle());
             title.setFont(Font.font("Poppins", FontWeight.BOLD, 16));
             title.setTextFill(Color.web("#d1d3e0"));
-            
+
             Label desc = new Label(challenge.getDescription());
             desc.setFont(Font.font("Poppins", 14));
             desc.setTextFill(Color.web("#9aa0ba"));
             desc.setWrapText(true);
-            
+
             HBox detailsBox = new HBox(20);
             detailsBox.setAlignment(Pos.CENTER_LEFT);
-            
+
             Label difficulty = new Label("Difficulty: " + challenge.getDifficulty());
             difficulty.setFont(Font.font("Poppins", FontWeight.MEDIUM, 14));
-            difficulty.setTextFill(Color.web("#" + (challenge.getDifficulty().equals("Easy") ? "48bb78" : challenge.getDifficulty().equals("Medium") ? "ed8936" : "e53e3e")));
-            
+            difficulty.setTextFill(Color.web("#" + (challenge.getDifficulty().equals("Easy") ? "48bb78"
+                    : challenge.getDifficulty().equals("Medium") ? "ed8936" : "e53e3e")));
+
             Label points = new Label("Points: " + challenge.getPoints());
             points.setFont(Font.font("Poppins", FontWeight.BOLD, 14));
             points.setTextFill(Color.web("#667eea"));
-            
+
             detailsBox.getChildren().addAll(difficulty, points);
-            
+
             Hyperlink url = new Hyperlink("🔗 Solve Challenge");
             url.setFont(Font.font("Poppins", 12));
             url.setTextFill(Color.web("#667eea"));
             url.setOnAction(e -> getHostServices().showDocument(challenge.getUrl()));
-            
+
             box.getChildren().addAll(title, desc, detailsBox, url);
             challengesContainer.getChildren().add(box);
         }
-        
+
         ScrollPane scrollPane = new ScrollPane(challengesContainer);
         scrollPane.setFitToWidth(true);
         scrollPane.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
@@ -605,7 +603,7 @@ public class PathPilotFX extends Application {
     private void showProgressTab() {
         content.getChildren().clear();
         content.setStyle("-fx-background-color: transparent;");
-        
+
         Label heading = new Label("📈 Your Progress");
         heading.setFont(Font.font("Poppins", FontWeight.BOLD, 26));
         heading.setTextFill(Color.web("#d1d3e0"));
@@ -613,7 +611,8 @@ public class PathPilotFX extends Application {
 
         VBox progressBox = new VBox(20);
         progressBox.setPadding(new Insets(20));
-        progressBox.setStyle("-fx-background-color: #2b2f50; -fx-background-radius: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 15, 0, 0, 6);");
+        progressBox.setStyle(
+                "-fx-background-color: #2b2f50; -fx-background-radius: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 15, 0, 0, 6);");
 
         Label scoreLabel = new Label("⭐ Total Score: " + score.get());
         scoreLabel.setFont(Font.font("Poppins", FontWeight.BOLD, 18));
@@ -634,24 +633,24 @@ public class PathPilotFX extends Application {
     private void showResourcesTab() {
         content.getChildren().clear();
         content.setStyle("-fx-background-color: transparent;");
-        
+
         Label heading = new Label("📚 Learning Resources");
         heading.setFont(Font.font("Poppins", FontWeight.BOLD, 26));
         heading.setTextFill(Color.web("#d1d3e0"));
         content.getChildren().add(heading);
 
         List<String> resources = Arrays.asList(
-            "https://leetcode.com/", "https://www.geeksforgeeks.org/", "https://www.coursera.org/",
-            "https://www.udemy.com/", "https://github.com/", "https://stackoverflow.com/",
-            "https://developer.mozilla.org/", "https://www.freecodecamp.org/", "https://www.codecademy.com/",
-            "https://www.pluralsight.com/", "https://www.kaggle.com/", "https://www.datacamp.com/",
-            "https://www.udacity.com/", "https://www.edx.org/", "https://www.hackerrank.com/",
-            "https://www.codewars.com/", "https://www.topcoder.com/", "https://www.hackerearth.com/"
-        );
+                "https://leetcode.com/", "https://www.geeksforgeeks.org/", "https://www.coursera.org/",
+                "https://www.udemy.com/", "https://github.com/", "https://stackoverflow.com/",
+                "https://developer.mozilla.org/", "https://www.freecodecamp.org/", "https://www.codecademy.com/",
+                "https://www.pluralsight.com/", "https://www.kaggle.com/", "https://www.datacamp.com/",
+                "https://www.udacity.com/", "https://www.edx.org/", "https://www.hackerrank.com/",
+                "https://www.codewars.com/", "https://www.topcoder.com/", "https://www.hackerearth.com/");
 
         VBox resourcesBox = new VBox(10);
         resourcesBox.setPadding(new Insets(20));
-        resourcesBox.setStyle("-fx-background-color: #2b2f50; -fx-background-radius: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 15, 0, 0, 6);");
+        resourcesBox.setStyle(
+                "-fx-background-color: #2b2f50; -fx-background-radius: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 15, 0, 0, 6);");
 
         for (String resource : resources) {
             Hyperlink link = new Hyperlink("🔗 " + resource);
@@ -723,11 +722,16 @@ public class PathPilotFX extends Application {
 
     private void updateTier() {
         int currentScore = score.get();
-        if (currentScore >= 500) currentTier.set("Diamond");
-        else if (currentScore >= 300) currentTier.set("Platinum");
-        else if (currentScore >= 150) currentTier.set("Gold");
-        else if (currentScore >= 50) currentTier.set("Silver");
-        else currentTier.set("Bronze");
+        if (currentScore >= 500)
+            currentTier.set("Diamond");
+        else if (currentScore >= 300)
+            currentTier.set("Platinum");
+        else if (currentScore >= 150)
+            currentTier.set("Gold");
+        else if (currentScore >= 50)
+            currentTier.set("Silver");
+        else
+            currentTier.set("Bronze");
     }
 
     // Data classes
@@ -746,11 +750,25 @@ public class PathPilotFX extends Application {
             this.url = url;
         }
 
-        public String getTitle() { return title; }
-        public String getDescription() { return description; }
-        public String getDifficulty() { return difficulty; }
-        public int getPoints() { return points; }
-        public String getUrl() { return url; }
+        public String getTitle() {
+            return title;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+
+        public String getDifficulty() {
+            return difficulty;
+        }
+
+        public int getPoints() {
+            return points;
+        }
+
+        public String getUrl() {
+            return url;
+        }
     }
 
     public static class Milestone {
@@ -768,12 +786,29 @@ public class PathPilotFX extends Application {
             this.resources = resources;
         }
 
-        public String getTitle() { return title; }
-        public String getDescription() { return description; }
-        public int getPoints() { return points; }
-        public boolean isCompleted() { return completed; }
-        public void setCompleted(boolean completed) { this.completed = completed; }
-        public List<String> getResources() { return resources; }
+        public String getTitle() {
+            return title;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+
+        public int getPoints() {
+            return points;
+        }
+
+        public boolean isCompleted() {
+            return completed;
+        }
+
+        public void setCompleted(boolean completed) {
+            this.completed = completed;
+        }
+
+        public List<String> getResources() {
+            return resources;
+        }
     }
 
     public static void main(String[] args) {
