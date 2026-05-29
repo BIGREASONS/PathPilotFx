@@ -120,6 +120,23 @@ PathPilotFX/
 
 ---
 
+## 🎯 Learning Goals
+
+- Build a polished JavaFX desktop application with persistent local state.
+- Integrate a local LLM workflow through Ollama without sending user data to a cloud API.
+- Practice product-minded UI design around a concrete career-planning use case.
+
+## 📸 Screenshots / Demo
+
+Recommended additions:
+
+- Main dashboard with the active roadmap
+- Profile setup flow
+- Tier/progress view
+- Short demo video showing roadmap generation with Ollama running locally
+
+---
+
 <div align="center">
   <b>Architect your future. Skip the tutorial hell. Build what matters.</b><br>
   <i>Developed with ❤️ for aspiring engineers.</i>
